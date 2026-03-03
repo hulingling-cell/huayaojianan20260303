@@ -1,0 +1,2272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+    />
+    <title>华药健案助手 - 注册与项目管理（小程序原型）</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC",
+          "Microsoft YaHei", system-ui, sans-serif;
+        background: #f5f5f5;
+        color: #111827;
+        display: flex;
+        justify-content: center;
+      }
+      /* 模拟 iPhone 16 Pro Max 设备画布（逻辑宽约 430） */
+      .device {
+        width: 430px;
+        min-height: 932px;
+        background: #f5f5f5;
+      }
+      .mini-header {
+        padding: 10px 16px 6px;
+        background: #ffffff;
+      }
+      .mini-status-bar {
+        font-size: 12px;
+        color: #6b7280;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+      .mini-project-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f9fafb;
+        border-radius: 999px;
+        padding: 6px 10px;
+      }
+      .mini-project-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .mini-qr-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        border: 1px solid #e5e7eb;
+        background: #ffffff;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 14px;
+        color: #374151;
+      }
+      .mini-qr-btn:hover {
+        background: #f3f4f6;
+      }
+      .mini-project-main {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .mini-project-logo {
+        width: 26px;
+        height: 26px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #ffffff;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+      }
+      .mini-project-text-main {
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .mini-project-text-sub {
+        font-size: 11px;
+        color: #6b7280;
+      }
+      .mini-project-arrow {
+        font-size: 12px;
+        color: #6b7280;
+      }
+      .mini-project-menu {
+        position: absolute;
+        left: 16px;
+        right: 16px;
+        top: 72px;
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+        padding: 4px;
+        z-index: 50;
+        display: none;
+      }
+      .mini-project-menu.active {
+        display: block;
+      }
+      .mini-project-menu-item {
+        padding: 10px 10px;
+        border-radius: 10px;
+        display: flex;
+        justify-content: space-between;
+        cursor: pointer;
+      }
+      .mini-project-menu-item:hover {
+        background: #f9fafb;
+      }
+      .mini-project-menu-item.active {
+        background: #f3f4f6;
+      }
+      .mini-project-menu-item-title {
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .mini-project-menu-item-sub {
+        font-size: 11px;
+        color: #6b7280;
+        margin-top: 2px;
+      }
+      .mini-project-check {
+        font-size: 12px;
+        color: #10b981;
+        font-weight: 600;
+      }
+
+      .mini-content {
+        padding: 8px 12px 60px;
+      }
+      .card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 14px 14px 12px;
+        margin-bottom: 10px;
+      }
+      .card-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+      .news-item {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .news-thumb {
+        width: 80px;
+        height: 60px;
+        border-radius: 6px;
+        background: #e5e7eb;
+      }
+      .news-content-title {
+        font-size: 13px;
+        margin-bottom: 4px;
+      }
+      .news-content-meta {
+        font-size: 11px;
+        color: #6b7280;
+      }
+
+      /* 页面容器 */
+      .page {
+        display: none;
+      }
+      .page.active {
+        display: block;
+      }
+
+      /* 登录页简化 */
+      .login-tip {
+        font-size: 13px;
+        color: #6b7280;
+        margin-bottom: 10px;
+      }
+      .form-group {
+        margin-bottom: 10px;
+      }
+      .form-label {
+        font-size: 13px;
+        margin-bottom: 4px;
+        color: #374151;
+        display: block;
+      }
+      .form-input,
+      textarea.form-input {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        font-size: 13px;
+      }
+      .form-input:focus,
+      textarea.form-input:focus {
+        outline: none;
+        border-color: #dc2626;
+        box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.15);
+      }
+      .btn {
+        border: none;
+        border-radius: 999px;
+        padding: 10px 16px;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      .btn-primary {
+        background: #dc2626;
+        color: #ffffff;
+      }
+      .btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+      }
+      .input-row {
+        display: flex;
+        gap: 8px;
+      }
+      .input-row .form-input {
+        flex: 1;
+      }
+
+      /* 小程序底部 tabBar */
+      .tabbar {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 0;
+        width: 430px;
+        max-width: 100%;
+        height: 60px;
+        background: #ffffff;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        z-index: 40;
+      }
+      .tabbar-item {
+        flex: 1;
+        text-align: center;
+        font-size: 11px;
+        color: #6b7280;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        cursor: pointer;
+      }
+      .tabbar-icon {
+        font-size: 18px;
+      }
+      .tabbar-item.active {
+        color: #dc2626;
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        background: #e5e7eb;
+        color: #374151;
+      }
+      .status-badge.approved {
+        background: #d1fae5;
+        color: #047857;
+      }
+      .status-badge.pending {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .profile-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #f3f4f6;
+      }
+      .profile-item:last-child {
+        border-bottom: none;
+      }
+      .profile-item-label {
+        font-size: 13px;
+        color: #374151;
+      }
+      .profile-item-value {
+        font-size: 13px;
+        color: #6b7280;
+      }
+      .profile-item-action {
+        font-size: 12px;
+        color: #dc2626;
+        cursor: pointer;
+      }
+      .reward-notice {
+        font-size: 12px;
+        color: #6b7280;
+        line-height: 1.6;
+      }
+
+      .qr-image {
+        width: 200px;
+        height: 200px;
+        border-radius: 12px;
+        border: 1px dashed #d1d5db;
+        object-fit: contain;
+        background: #f9fafb;
+      }
+
+      /* 模态弹窗（沿用网页版样式精简版） */
+      .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 60;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal.active {
+        display: flex;
+      }
+      .modal-content {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 18px 18px 14px;
+        width: 90%;
+        max-width: 420px;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .modal-title {
+        font-size: 16px;
+        font-weight: 600;
+      }
+      .modal-close {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        border: none;
+        background: #f3f4f6;
+        cursor: pointer;
+      }
+      .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      /* 小程序原型：开发面板 */
+      .dev-fab {
+        position: fixed;
+        left: 50%;
+        transform: translateX(170px);
+        bottom: 76px;
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        border: none;
+        background: #111827;
+        color: #ffffff;
+        font-size: 16px;
+        cursor: pointer;
+        z-index: 80;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+      }
+      .dev-panel-title {
+        font-size: 13px;
+        color: #6b7280;
+        margin: 10px 0 6px;
+      }
+      .dev-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .dev-chip {
+        padding: 8px 10px;
+        border-radius: 999px;
+        border: 1px solid #e5e7eb;
+        background: #ffffff;
+        cursor: pointer;
+        font-size: 12px;
+        color: #374151;
+      }
+      .dev-chip.active {
+        border-color: #dc2626;
+        background: #fef2f2;
+        color: #dc2626;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="device">
+      <!-- 顶部状态栏 + 项目切换 -->
+      <div class="mini-header">
+        <div class="mini-status-bar">
+          <span>18:19 ▾</span>
+          <span>微信小程序 · 华药健案助手</span>
+        </div>
+        <div
+          class="mini-project-bar"
+          id="mini-project-bar"
+          onclick="toggleMiniProjectMenu()"
+        >
+          <div class="mini-project-main">
+            <div class="mini-project-logo" id="mini-project-logo">U</div>
+            <div>
+              <div class="mini-project-text-main" id="mini-project-abbr">SCUA®</div>
+              <div class="mini-project-text-sub" id="mini-project-name">
+                南方荨麻疹专病联盟
+              </div>
+            </div>
+          </div>
+          <div class="mini-project-actions">
+            <button
+              class="mini-qr-btn"
+              id="mini-project-qr-btn"
+              onclick="event.stopPropagation(); openProjectQrModal();"
+              title="项目专属二维码（管理员）"
+            >
+              ⌁
+            </button>
+            <div class="mini-project-arrow">▾</div>
+          </div>
+        </div>
+      </div>
+      <div class="mini-project-menu" id="mini-project-menu"></div>
+
+      <!-- 页面内容 -->
+      <div class="mini-content">
+        <!-- 登录页 -->
+        <div class="page active" id="page-login">
+          <div class="card">
+            <div class="card-title">手机号快捷登录</div>
+            <div class="login-tip" id="login-tip-text">
+              验证即登录，未注册将自动创建华药健案助手账号
+            </div>
+            <div class="form-group">
+              <label class="form-label">手机号</label>
+              <input
+                id="login-phone"
+                type="tel"
+                class="form-input"
+                placeholder="请输入您的手机号"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">验证码</label>
+              <div class="input-row">
+                <input
+                  id="login-code"
+                  type="text"
+                  class="form-input"
+                  placeholder="请输入验证码"
+                />
+                <button class="btn btn-secondary" onclick="sendCode()">发送验证码</button>
+              </div>
+            </div>
+            <button class="btn btn-primary" style="width: 100%;" onclick="handleLogin()">
+              登录 / 注册
+            </button>
+          </div>
+        </div>
+
+        <!-- 首页（参照截图：项目资讯） -->
+        <div class="page" id="page-home">
+          <div class="card">
+            <div class="card-title">专病联盟最新消息</div>
+            <div class="news-item">
+              <div class="news-thumb"></div>
+              <div>
+                <div class="news-content-title">湘雅二医院慢性荨麻疹专病门诊...</div>
+                <div class="news-content-meta">2025-02-28 16:56:26</div>
+              </div>
+            </div>
+            <div class="news-item">
+              <div class="news-thumb"></div>
+              <div>
+                <div class="news-content-title">热烈祝贺中国南方荨麻疹联盟正式成立</div>
+                <div class="news-content-meta">2025-02-28 16:56:26</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">慢性荨麻疹 CSU 教育</div>
+            <div class="news-item">
+              <div class="news-thumb"></div>
+              <div>
+                <div class="news-content-title">不能长期用药，用久了会有依赖性？</div>
+                <div class="news-content-meta">2025-02-28 16:56:26</div>
+              </div>
+            </div>
+            <div class="news-item">
+              <div class="news-thumb"></div>
+              <div>
+                <div class="news-content-title">定期问卷填写，轻松掌握荨麻疹</div>
+                <div class="news-content-meta">2025-02-28 16:56:26</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 我的会话 -->
+        <div class="page" id="page-conversations">
+          <div class="card">
+            <div class="card-title">我的会话</div>
+            <p style="font-size: 13px; color: #6b7280;">
+              会话列表功能原型占位（与网页版逻辑一致，这里仅展示示意）。
+            </p>
+          </div>
+        </div>
+
+        <!-- 我的病案 -->
+        <div class="page" id="page-cases">
+          <div class="card">
+            <div class="card-title">我的病案</div>
+            <p style="font-size: 13px; color: #6b7280;">
+              病案列表功能（认证医生 & 项目有权限时可用），与网页版逻辑一致。
+            </p>
+          </div>
+        </div>
+
+        <!-- 仪表板 -->
+        <div class="page" id="page-dashboard">
+          <div class="card">
+            <div class="card-title">项目概览</div>
+            <p style="font-size: 13px; color: #6b7280;">
+              这里展示当前项目的关键统计指标（病案数、合格率等），逻辑与网页版一致，图表在正式开发时接入。
+            </p>
+          </div>
+        </div>
+
+        <!-- 个人中心 -->
+        <div class="page" id="page-profile">
+          <div class="card">
+            <div class="card-title">
+              账号信息
+              <span id="user-type-badge" class="status-badge" style="margin-left: 6px;"
+                >公网版用户</span
+              >
+            </div>
+            <div class="profile-item">
+              <div>
+                <div class="profile-item-label">我的专属二维码</div>
+                <div class="profile-item-value" style="font-size: 12px;">
+                  患者扫码即可进入我的专属健案助手入口
+                </div>
+              </div>
+              <div style="text-align: center;" id="my-qr-wrapper">
+                <div
+                  id="my-qr-placeholder"
+                  style="width: 110px; height: 110px; border-radius: 16px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #9ca3af; text-align: center; padding: 8px; margin: 0 auto;"
+                >
+                  请先完成医生身份认证<br />认证通过后将自动生成专属二维码
+                </div>
+                <img
+                  id="my-qr-image"
+                  src="二维码.png"
+                  alt="我的专属二维码"
+                  class="qr-image"
+                  style="width: 110px; height: 110px; display: none;"
+                />
+                <div
+                  class="profile-item-action"
+                  style="margin-top: 4px;"
+                  onclick="handleOpenMyQr()"
+                >
+                  放大查看 / 下载
+                </div>
+              </div>
+            </div>
+            <div class="profile-item">
+              <div class="profile-item-label">姓名</div>
+              <div class="profile-item-value">请输入</div>
+            </div>
+            <div class="profile-item">
+              <div class="profile-item-label">绑定微信号</div>
+              <div class="profile-item-value" id="wechat-bind-value">未绑定</div>
+              <div class="profile-item-action" onclick="openWechatBind()">去绑定</div>
+            </div>
+            <div class="profile-item">
+              <div class="profile-item-label">关联医院</div>
+              <div class="profile-item-value">华药智引医学技术有限公司</div>
+            </div>
+          </div>
+
+          <!-- 我的立牌（按项目） -->
+          <div class="card">
+            <div
+              class="card-title"
+              style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;"
+              onclick="toggleBadgeSection()"
+            >
+              <span>我的立牌（按项目）</span>
+              <span id="badge-toggle-text" style="font-size: 12px; color: #6b7280;">点击展开</span>
+            </div>
+            <div id="badge-section-wrapper" style="display: none;">
+              <div id="badge-project-list"></div>
+              <div class="reward-notice" style="margin-top: 8px;">
+                每个项目有独立的立牌生成与邮寄额度；当额度不足时，“制作/邮寄”操作将弹出支付二维码，支持好友代付（原型占位）。
+              </div>
+            </div>
+          </div>
+
+          <!-- 个人身份验证（提前到合作医生认证之前） -->
+          <div class="card">
+            <div class="card-title">个人身份验证</div>
+            <div class="profile-item">
+              <div class="profile-item-label">医生身份认证</div>
+              <div>
+                <span id="verify-badge" class="status-badge">未验证</span>
+              </div>
+              <div class="profile-item-action" onclick="showVerifyModal()">去验证</div>
+            </div>
+          </div>
+
+          <!-- 合作医生认证（按项目） -->
+          <div class="card" id="whitelist-card">
+            <div class="card-title">合作医生认证（按项目）</div>
+            <div class="profile-item">
+              <div>
+                <div class="profile-item-label">当前项目合作医生认证状态</div>
+                <div style="margin-top: 4px;">
+                  <span id="whitelist-badge" class="status-badge">尚未发起合作医生认证</span>
+                </div>
+                <div
+                  id="whitelist-phone-text"
+                  class="profile-item-value"
+                  style="font-size: 12px; margin-top: 4px;"
+                >
+                  合作医生认证将根据您当前登录的手机号进行校验。
+                </div>
+              </div>
+              <div
+                id="whitelist-apply-action"
+                class="profile-item-action"
+                onclick="handleWhitelistApplyFromProfile()"
+              >
+                去申请加入
+              </div>
+            </div>
+          </div>
+
+          <!-- 项目管理与机器人配置 -->
+          <div class="card">
+            <div class="card-title">项目管理与机器人配置</div>
+            <div class="reward-notice" id="role-settings-desc" style="margin-bottom: 8px; font-size: 12px;">
+              当前角色：医生，可对本项目的机器人进行简单配置（原型示意）。
+            </div>
+            <div id="role-settings-list" style="margin-top: 4px;"></div>
+          </div>
+
+          <!-- 激励申领（折叠） -->
+          <div class="card" id="reward-card-container">
+            <div
+              class="card-title"
+              style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;"
+              onclick="toggleRewardSection()"
+            >
+              <span id="reward-section-title">病例奖励申领</span>
+              <span id="reward-toggle-text" style="font-size: 12px; color: #6b7280;">点击展开</span>
+            </div>
+            <div id="reward-section-wrapper" style="display: none; margin-top: 6px;">
+              <div
+                id="reward-restricted-tip"
+                style="display: none; background: #fef3c7; border-radius: 10px; padding: 10px; font-size: 12px; color: #92400e; line-height: 1.6; margin-bottom: 8px;"
+              >
+                当前项目未加入数据建模队列，暂不可使用银行卡激励申领；您仍可使用上传病例、仪表板、医生工作台等功能。
+              </div>
+              <div id="reward-form-container">
+                <div
+                  style="background: #fef3c7; border-radius: 10px; padding: 10px; margin-bottom: 8px;"
+                >
+                  <div
+                    style="font-size: 13px; font-weight: 600; color: #92400e; margin-bottom: 4px;"
+                  >
+                    病例奖励说明
+                  </div>
+                  <div style="font-size: 12px; color: #92400e;" id="reward-progress-text">
+                    已完成 0 例合格病案上传，还需完成 0 例合格病案上传即可获得奖励。
+                  </div>
+                  <div class="reward-notice" style="margin-top: 4px;">
+                    请使用本人实名银行卡完成收款信息绑定。
+                  </div>
+                </div>
+                <div>
+                  <div class="form-group">
+                    <label class="form-label">收款户名</label>
+                    <input
+                      type="text"
+                      class="form-input"
+                      value="胡**"
+                      disabled
+                      placeholder="系统根据实名认证自动填充"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label"
+                      >银行卡号 <span style="color: #dc2626;">*</span></label
+                    >
+                    <input type="text" class="form-input" placeholder="请输入银行卡号" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">收款银行</label>
+                    <input
+                      type="text"
+                      class="form-input"
+                      placeholder="根据银行卡号自动填充"
+                      disabled
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">预留手机号</label>
+                    <input
+                      id="bank-phone"
+                      type="tel"
+                      class="form-input"
+                      placeholder="银行预留手机号"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label"
+                      >验证码 <span style="color: #dc2626;">*</span></label
+                    >
+                    <div class="input-row">
+                      <input
+                        id="bank-code"
+                        type="text"
+                        class="form-input"
+                        placeholder="请输入6位验证码"
+                      />
+                      <button class="btn btn-secondary" onclick="sendBankCode()">
+                        发送验证码
+                      </button>
+                    </div>
+                  </div>
+                  <div class="reward-notice">
+                    银行卡绑定仅用于奖励金发放，平台将严格保护您的隐私数据。
+                  </div>
+                  <button
+                    class="btn btn-primary"
+                    style="width: 100%; margin-top: 8px;"
+                    onclick="handleBankSubmit(event)"
+                  >
+                    确认提交
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 底部 tabBar -->
+      <div class="tabbar">
+        <div class="tabbar-item active" data-page="home" onclick="switchTab('home')">
+          <div class="tabbar-icon">🏠</div>
+          <div>首页</div>
+        </div>
+        <div
+          class="tabbar-item"
+          data-page="conversations"
+          onclick="switchTab('conversations')"
+        >
+          <div class="tabbar-icon">💬</div>
+          <div>我的会话</div>
+        </div>
+        <div class="tabbar-item" data-page="cases" onclick="switchTab('cases')">
+          <div class="tabbar-icon">📋</div>
+          <div>我的病案</div>
+        </div>
+        <div class="tabbar-item" data-page="dashboard" onclick="switchTab('dashboard')">
+          <div class="tabbar-icon">📊</div>
+          <div>仪表板</div>
+        </div>
+        <div class="tabbar-item" data-page="profile" onclick="switchTab('profile')">
+          <div class="tabbar-icon">👤</div>
+          <div>个人中心</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 身份验证弹窗（简化版） -->
+    <div class="modal" id="verify-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">医生身份认证</div>
+          <button class="modal-close" onclick="closeModal('verify-modal')">×</button>
+        </div>
+        <p style="font-size: 13px; color: #6b7280; margin-bottom: 10px;">
+          当前为公网版用户，如需使用“我的病案”“仪表板”等核心功能，请先完成医生身份认证。
+        </p>
+        <div class="form-group">
+          <label class="form-label">医师资格证书照片</label>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="chooseImageForUpload('certificate', 'camera')">拍照</button>
+            <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="chooseImageForUpload('certificate', 'album')">选择相册</button>
+            <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="chooseFileForUpload('certificate')">选择文件</button>
+          </div>
+          <div id="certificate-upload-area" style="margin-top: 8px; padding: 12px; border: 1px dashed #d1d5db; border-radius: 8px; text-align: center; background: #f9fafb; color: #6b7280; font-size: 12px;">
+            未选择文件
+          </div>
+          <input type="file" id="certificate-file" style="display: none;" accept="image/*" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">医师执业证书照片</label>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="chooseImageForUpload('license', 'camera')">拍照</button>
+            <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="chooseImageForUpload('license', 'album')">选择相册</button>
+            <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="chooseFileForUpload('license')">选择文件</button>
+          </div>
+          <div id="license-upload-area" style="margin-top: 8px; padding: 12px; border: 1px dashed #d1d5db; border-radius: 8px; text-align: center; background: #f9fafb; color: #6b7280; font-size: 12px;">
+            未选择文件
+          </div>
+          <input type="file" id="license-file" style="display: none;" accept="image/*" />
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeModal('verify-modal')">稍后再说</button>
+          <button class="btn btn-primary" onclick="submitVerification()">提交验证</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 合作医生认证提示弹窗 -->
+    <div class="modal" id="whitelist-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">合作医生认证提示</div>
+          <button class="modal-close" onclick="closeModal('whitelist-modal')">×</button>
+        </div>
+        <div
+          id="whitelist-modal-text"
+          style="font-size: 13px; color: #6b7280; line-height: 1.7; margin-bottom: 10px;"
+        >
+          根据当前登录手机号<strong>*******</strong>，您尚未加入该项目的数据建模队列，可申请加入或仅使用功能（银行卡激励不可用）。
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="handleWhitelistCancel()">仅使用功能</button>
+          <button class="btn btn-primary" onclick="handleWhitelistApply()">申请加入</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 合作医生认证申请表单弹窗 -->
+    <div class="modal" id="whitelist-apply-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">申请加入合作医生队列</div>
+          <button class="modal-close" onclick="closeModal('whitelist-apply-modal')">×</button>
+        </div>
+        <div style="font-size: 13px; color: #6b7280; line-height: 1.7; margin-bottom: 10px;">
+          请填写您的基本信息，提交后工作人员将根据「姓名 + 注册手机号 + 医院科室」进行白名单审核。
+        </div>
+        <form onsubmit="submitWhitelistApplyForm(event)">
+          <div class="form-group">
+            <label class="form-label">姓名</label>
+            <input type="text" id="whitelist-name" class="form-input" placeholder="请输入您的姓名" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">注册手机号</label>
+            <input
+              type="tel"
+              id="whitelist-phone"
+              class="form-input"
+              placeholder="请输入您在平台注册时使用的手机号"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">医院全称</label>
+            <input
+              type="text"
+              id="whitelist-hospital"
+              class="form-input"
+              placeholder="请输入医院全称，如：中南大学湘雅二医院"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">科室</label>
+            <input
+              type="text"
+              id="whitelist-dept"
+              class="form-input"
+              placeholder="请输入所在科室，如：呼吸与危重症医学科"
+            />
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('whitelist-apply-modal')">
+              取消
+            </button>
+            <button type="submit" class="btn btn-primary">提交申请</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 我的专属二维码弹窗 -->
+    <div class="modal" id="qr-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">我的专属二维码</div>
+          <button class="modal-close" onclick="closeModal('qr-modal')">×</button>
+        </div>
+        <div style="text-align: center;">
+          <img src="二维码.png" alt="我的专属二维码" class="qr-image" />
+          <div style="margin-top: 8px; font-size: 12px; color: #6b7280;">
+            扫码后，患者可进入您的专属健案助手小程序入口（原型示意）。
+          </div>
+          <div class="modal-footer" style="justify-content: center;">
+            <button class="btn btn-primary" onclick="alert('模拟下载二维码图片')">
+              下载二维码
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 执业证件 AI 审核不通过提示弹窗 -->
+    <div class="modal" id="license-audit-fail-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">医生证件 AI 审核未通过</div>
+          <button class="modal-close" onclick="closeModal('license-audit-fail-modal')">×</button>
+        </div>
+        <div style="color: #6b7280; font-size: 13px; line-height: 1.7; margin-bottom: 10px;">
+          系统已通过 AI 自动检查您上传的执业医师资格证 / 执业证书，当前未能通过完整性校验，原因如下：
+        </div>
+        <div
+          id="license-audit-fail-reason"
+          style="background: #fef2f2; border-radius: 10px; padding: 10px; color: #991b1b; font-size: 12px; line-height: 1.6; margin-bottom: 12px;"
+        >
+          证件照片不够清晰，未能识别到完整的证件编号与盖章信息，请重新拍摄并上传清晰的完整证件照片。
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
+          <img src="二维码.png" alt="联系客服微信二维码" class="qr-image" style="width: 120px; height: 120px;" />
+          <div style="flex: 1;">
+            <div style="font-size: 12px; color: #374151; font-weight: 600; margin-bottom: 6px;">
+              如需协助，可添加客服微信
+            </div>
+            <div style="font-size: 12px; color: #6b7280; line-height: 1.6;">
+              扫码添加后备注“医生证件审核 + 您的姓名”，客服将协助您核对证件要求与重新上传。
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeModal('license-audit-fail-modal')">稍后再说</button>
+          <button class="btn btn-primary" onclick="handleLicenseReupload()">重新上传证件</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 项目专属二维码弹窗（管理员可见） -->
+    <div class="modal" id="project-qr-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">项目专属二维码</div>
+          <button class="modal-close" onclick="closeModal('project-qr-modal')">×</button>
+        </div>
+        <div style="color: #6b7280; font-size: 13px; line-height: 1.7; margin-bottom: 10px;">
+          该二维码可进入对应项目的小程序入口（示意）。仅项目管理员/系统管理员可查看。
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <img src="二维码.png" alt="项目专属二维码" class="qr-image" style="width: 160px; height: 160px;" />
+          <div style="flex: 1;">
+            <div style="font-size: 14px; font-weight: 700; margin-bottom: 6px;" id="project-qr-title">
+              南方荨麻疹专病联盟
+            </div>
+            <div style="font-size: 12px; color: #6b7280; line-height: 1.7;">
+              项目简称：<span id="project-qr-abbr">SCUA®</span><br />
+              入口：小程序项目空间（原型占位）
+            </div>
+            <div class="modal-footer" style="justify-content: flex-start;">
+              <button class="btn btn-primary" onclick="alert('模拟下载项目二维码')">下载二维码</button>
+              <button class="btn btn-secondary" onclick="closeModal('project-qr-modal')">关闭</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 立牌信息收集问卷弹窗 -->
+    <div class="modal" id="badge-questionnaire-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">制作我的医生立牌</div>
+          <button class="modal-close" onclick="closeModal('badge-questionnaire-modal')">×</button>
+        </div>
+        <div style="color: #6b7280; margin-bottom: 10px; font-size: 13px; line-height: 1.7;">
+          请填写制作立牌所需的基础信息，系统将自动套用标准模板生成您的个人立牌。
+        </div>
+        <div class="form-group">
+          <label class="form-label">姓名</label>
+          <input type="text" class="form-input" id="badge-name" placeholder="请输入姓名，如：张三" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">职称</label>
+          <input type="text" class="form-input" id="badge-title" placeholder="主任医师 / 副主任医师 / 主治医师 等" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">医院全称</label>
+          <input type="text" class="form-input" id="badge-hospital" placeholder="请输入医院全称" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">科室全称</label>
+          <input type="text" class="form-input" id="badge-department" placeholder="请输入科室名称，如：皮肤科" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">
+            头像照片
+            <span style="font-size: 12px; color: #9ca3af;">（用于立牌上方医生形象展示）</span>
+          </label>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="chooseImageForBadge('camera')">拍照</button>
+            <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="chooseImageForBadge('album')">选择相册</button>
+            <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="chooseFileForBadge()">选择文件</button>
+          </div>
+          <div id="badge-avatar-upload-area" style="margin-top: 8px; padding: 12px; border: 1px dashed #d1d5db; border-radius: 8px; text-align: center; background: #f9fafb; color: #6b7280; font-size: 12px;">
+            未选择文件
+          </div>
+          <input type="file" id="badge-avatar-file" style="display: none;" accept="image/*" />
+        </div>
+        <div class="reward-notice" id="badge-free-desc">
+          当前项目剩余生成额度：- 次
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeModal('badge-questionnaire-modal')">稍后再说</button>
+          <button class="btn btn-primary" onclick="submitBadgeQuestionnaire()">生成立牌预览</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 立牌预览弹窗 -->
+    <div class="modal" id="badge-preview-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title" id="badge-preview-title">立牌预览</div>
+          <button class="modal-close" onclick="closeModal('badge-preview-modal')">×</button>
+        </div>
+        <div style="text-align: center;">
+          <img
+            src="立牌模板-女医生.psd (1).svg"
+            alt="医生立牌预览"
+            style="width: 100%; border-radius: 12px; border: 1px solid #e5e7eb; background: #f9fafb;"
+          />
+          <div style="margin-top: 10px; font-size: 12px; color: #6b7280; line-height: 1.6;">
+            以上为立牌模板示意图，实际生成时将自动替换为您的姓名、医院、科室、职称及头像。<br />
+            点击“确认生成并下载”后，将占用该项目 1 次生成额度。
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeModal('badge-preview-modal'); openBadgeQuestionnaireForEdit();">
+            返回修改
+          </button>
+          <button class="btn btn-primary" onclick="confirmGenerateBadge()">确认生成并下载</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 邮寄立牌弹窗（按项目） -->
+    <div class="modal" id="badge-mail-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title" id="badge-mail-title">邮寄立牌</div>
+          <button class="modal-close" onclick="closeModal('badge-mail-modal')">×</button>
+        </div>
+        <div id="badge-mail-view">
+          <div style="color: #6b7280; margin-bottom: 10px; font-size: 13px; line-height: 1.7;">
+            请填写收件信息，系统将为您提交立牌邮寄申请（原型占位）。
+          </div>
+          <div class="form-group">
+            <label class="form-label">收件人姓名</label>
+            <input type="text" class="form-input" id="badge-mail-name" placeholder="请输入收件人姓名" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">联系电话</label>
+            <input type="tel" class="form-input" id="badge-mail-phone" placeholder="请输入联系电话" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">收件地址</label>
+            <textarea class="form-input" id="badge-mail-address" placeholder="请输入详细地址（省市区+街道门牌号）" style="min-height: 90px; resize: vertical;"></textarea>
+          </div>
+          <div class="reward-notice" id="badge-mail-quota-tip">剩余邮寄额度：-</div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('badge-mail-modal')">取消</button>
+            <button class="btn btn-primary" onclick="submitBadgeMail()">确认提交</button>
+          </div>
+        </div>
+
+        <div id="badge-mail-tracking" style="display: none;">
+          <div style="color: #6b7280; margin-bottom: 10px; font-size: 13px; line-height: 1.7;">
+            您已提交邮寄申请，立牌状态已更新为“已邮寄”（原型占位）。
+          </div>
+          <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+            <div style="font-size: 12px; color: #6b7280; line-height: 1.7;" id="badge-mail-tracking-info">
+              收件人信息已保存，可在需要时修改收件信息或再次邮寄。
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('badge-mail-modal')">关闭</button>
+            <button class="btn btn-primary" onclick="openBadgeMailEdit()">修改/再次邮寄</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 立牌支付弹窗（无额度时展示，支持好友代付） -->
+    <div class="modal" id="badge-pay-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">额度不足，请完成支付</div>
+          <button class="modal-close" onclick="closeModal('badge-pay-modal')">×</button>
+        </div>
+        <div style="color: #6b7280; margin-bottom: 10px; font-size: 13px; line-height: 1.7;" id="badge-pay-desc">
+          当前项目的免费额度不足，本次操作需要支付（原型占位）。支持好友代付。
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <img src="二维码.png" alt="支付二维码" class="qr-image" style="width: 160px; height: 160px;" />
+          <div style="flex: 1;">
+            <div style="font-size: 14px; font-weight: 700; color: #111827; margin-bottom: 6px;" id="badge-pay-title">
+              立牌制作/邮寄支付
+            </div>
+            <div style="font-size: 12px; color: #6b7280; line-height: 1.7;">
+              - 支持好友代付（可将二维码截图发给好友）。<br />
+              - 支付完成后，点击“我已完成支付”继续（原型占位）。
+            </div>
+            <div class="modal-footer" style="justify-content: flex-start;">
+              <button class="btn btn-secondary" onclick="alert('模拟好友代付：发送二维码截图给好友')">好友代付</button>
+              <button class="btn btn-primary" onclick="confirmBadgePayment()">我已完成支付</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 开发面板按钮 + 弹窗（用于演示成功/失败/角色） -->
+    <button class="dev-fab" onclick="openDevPanel()" title="开发面板：状态模拟">🔧</button>
+    <div class="modal" id="dev-panel-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">开发面板（演示用）</div>
+          <button class="modal-close" onclick="closeModal('dev-panel-modal')">×</button>
+        </div>
+        <div class="dev-panel-title">快速切换页面</div>
+        <div class="dev-row">
+          <button class="dev-chip" onclick="devShowPage('login')">登录/注册页</button>
+          <button class="dev-chip" onclick="devShowPage('home')">首页</button>
+          <button class="dev-chip" onclick="devShowPage('conversations')">我的会话</button>
+          <button class="dev-chip" onclick="devShowPage('cases')">我的病案</button>
+          <button class="dev-chip" onclick="devShowPage('dashboard')">仪表板</button>
+          <button class="dev-chip" onclick="devShowPage('profile')">个人中心</button>
+          <button class="dev-chip" onclick="showRewardForm()">激励申领（个人中心）</button>
+        </div>
+        <div class="dev-panel-title">角色模拟</div>
+        <div class="dev-row">
+          <button class="dev-chip" id="role-doctor" onclick="setUserRole('doctor')">医生</button>
+          <button class="dev-chip" id="role-projectAdmin" onclick="setUserRole('projectAdmin')">项目管理员</button>
+          <button class="dev-chip" id="role-systemAdmin" onclick="setUserRole('systemAdmin')">系统管理员</button>
+        </div>
+        <div class="dev-panel-title">证件 AI 审核结果</div>
+        <div class="dev-row">
+          <button class="dev-chip" id="audit-success" onclick="setMockLicenseAudit('success')">成功</button>
+          <button class="dev-chip" id="audit-fail" onclick="setMockLicenseAudit('fail')">失败</button>
+        </div>
+        <div class="dev-panel-title">银行卡一致性校验结果</div>
+        <div class="dev-row">
+          <button class="dev-chip" id="bank-success" onclick="setMockBankCheck('success')">成功</button>
+          <button class="dev-chip" id="bank-fail" onclick="setMockBankCheck('fail')">失败</button>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeModal('dev-panel-modal')">关闭</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // 登录 & 全局状态（核心逻辑与网页版保持一致思想）
+      let isVerified = false;
+      let currentPhone = "";
+      let currentProjectName = "南方荨麻疹专病联盟";
+      let currentProjectId = "scua";
+      let userRole = "doctor"; // doctor | projectAdmin | systemAdmin
+      let mockLicenseAuditResult = "success"; // success | fail
+      let mockBankCheckResult = "success"; // success | fail
+      // 病例奖励申领：缓存表单模板，避免占位覆盖后切回奖励项目无法恢复
+      let rewardFormTemplateCaptured = false;
+      let rewardFormTemplateHTML = "";
+
+      // 医生执业范围（示例，从执业证自动读取，仅展示不可修改）
+      const doctorScope = {
+        specialties: ["皮肤病与性病专业"],
+        locations: ["华药智引医学技术有限公司"]
+      };
+
+      // 项目配置：同步网页版，包含执业范围要求
+      const projectsConfig = {
+        // 南方荨麻疹专病联盟：普通项目（无合作医生认证、无病例奖励）
+        "南方荨麻疹专病联盟": {
+          id: "scua",
+          type: "normal",
+          requiredScope: "皮肤病与性病专业",
+          hasWhitelist: false,
+          hasReward: false
+        },
+        // AI智研金助手：白名单项目（有合作医生认证 + 病例奖励申领）
+        "AI智研金助手": {
+          id: "ild",
+          type: "whitelist",
+          requiredScope: "呼吸与危重症医学",
+          hasWhitelist: true,
+          hasReward: true
+        },
+        // AD小智：白名单项目（有合作医生认证 + 病例奖励申领，原型中默认已通过白名单）
+        AD小智: {
+          id: "ad",
+          type: "whitelist",
+          requiredScope: null,
+          hasWhitelist: true,
+          hasReward: true
+        },
+        其他项目: {
+          id: "other",
+          type: "normal",
+          requiredScope: null,
+          hasWhitelist: false,
+          hasReward: false
+        }
+      };
+
+      const projectDisplayMeta = {
+        scua: { abbr: "SCUA®", name: "南方荨麻疹专病联盟", logoChar: "U" },
+        ild: { abbr: "ILD", name: "AI智研金助手", logoChar: "A" },
+        ad: { abbr: "AD", name: "AD小智", logoChar: "D" },
+        other: { abbr: "PRJ", name: "其他项目", logoChar: "P" }
+      };
+
+      const projectWhitelistStatus = {
+        scua: "none", // pending / approved / rejected / none
+        // 默认将 AI智研金助手 视为“尚未加入白名单”的状态，方便在原型中演示申请流程
+        ild: "none",
+        ad: "approved",
+        other: "approved"
+      };
+
+      const projectAccessMode = {
+        scua: "limited",
+        ild: "full",
+        ad: "full",
+        other: "full"
+      };
+
+      const projectBadgeState = {
+        scua: {
+          status: "none",
+          remainingGenerate: 3,
+          remainingMail: 3,
+          shipping: null,
+          trackingNo: ""
+        },
+        ild: {
+          status: "generated",
+          remainingGenerate: 1,
+          remainingMail: 1,
+          shipping: {
+            name: "胡**",
+            phone: "13*********",
+            address: "广东省 广州市 天河区 XX路 XX号"
+          },
+          trackingNo: "YT20260227001"
+        },
+        ad: {
+          status: "none",
+          remainingGenerate: 0,
+          remainingMail: 0,
+          shipping: null,
+          trackingNo: ""
+        },
+        other: {
+          status: "none",
+          remainingGenerate: 1,
+          remainingMail: 1,
+          shipping: null,
+          trackingNo: ""
+        }
+      };
+
+      let currentBadgeProjectId = "scua";
+      let pendingBadgePayAction = "";
+
+      function switchTab(key) {
+        const map = {
+          home: "page-home",
+          conversations: "page-conversations",
+          cases: "page-cases",
+          dashboard: "page-dashboard",
+          profile: "page-profile"
+        };
+
+        // 先做执业范围拦截：医生在执业范围外时，可进入主页，但点击以下入口直接弹提示并拒绝进入
+        if (key === "dashboard" || key === "cases" || key === "conversations" || key === "profile") {
+          if (!checkScopeForCurrentProjectMini()) {
+            alert("您的执业范围与项目要求不完全匹配，请选择执业范围匹配的项目");
+            return;
+          }
+        }
+
+        // 再做身份认证拦截：通过执业范围校验后，仍需完成医生身份认证才能进入核心功能页
+        if (key === "dashboard" || key === "cases" || key === "conversations") {
+          if (!isVerified) {
+            showVerifyModal();
+            return;
+          }
+        }
+        Object.values(map).forEach((id) => {
+          document.getElementById(id).classList.remove("active");
+        });
+        document.getElementById(map[key]).classList.add("active");
+
+        document.querySelectorAll(".tabbar-item").forEach((item) => {
+          item.classList.toggle("active", item.dataset.page === key);
+        });
+      }
+
+      // 开发面板：快速跳转页面（绕过认证门槛，便于演示）
+      function devShowPage(key) {
+        if (key === "login") {
+          document.querySelectorAll(".page").forEach((p) => p.classList.remove("active"));
+          document.getElementById("page-login").classList.add("active");
+          document.querySelectorAll(".tabbar-item").forEach((item) => item.classList.remove("active"));
+          closeModal("dev-panel-modal");
+          return;
+        }
+        if (key === "dashboard" || key === "cases" || key === "conversations") {
+          isVerified = true;
+          const badge = document.getElementById("verify-badge");
+          if (badge) {
+            badge.textContent = "已认证";
+            badge.className = "status-badge approved";
+          }
+          const userTypeBadge = document.getElementById("user-type-badge");
+          if (userTypeBadge) {
+            userTypeBadge.textContent = "认证医生";
+            userTypeBadge.className = "status-badge approved";
+          }
+        }
+        // 确保离开登录页后，内容页可见
+        document.getElementById("page-login").classList.remove("active");
+        switchTab(key);
+        closeModal("dev-panel-modal");
+      }
+
+      // 个人中心：激励申领快捷入口
+      function showRewardForm() {
+        document.getElementById("page-login").classList.remove("active");
+        switchTab("profile");
+        const wrapper = document.getElementById("reward-section-wrapper");
+        const toggleText = document.getElementById("reward-toggle-text");
+        if (wrapper && (wrapper.style.display === "none" || !wrapper.style.display)) {
+          wrapper.style.display = "block";
+          if (toggleText) toggleText.textContent = "点击收起";
+        }
+        updateRewardSectionAccessUI();
+        wrapper?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+        closeModal("dev-panel-modal");
+      }
+
+      // 个人中心：立牌折叠/展开
+      function toggleBadgeSection() {
+        const wrapper = document.getElementById("badge-section-wrapper");
+        const toggleText = document.getElementById("badge-toggle-text");
+        if (!wrapper) return;
+        const isHidden = wrapper.style.display === "none" || !wrapper.style.display;
+        wrapper.style.display = isHidden ? "block" : "none";
+        if (toggleText) toggleText.textContent = isHidden ? "点击收起" : "点击展开";
+        if (isHidden) {
+          renderBadgeProjectList();
+          wrapper.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+
+      function sendCode() {
+        const phone = document.getElementById("login-phone").value.trim();
+        if (!phone) {
+          alert("请先输入手机号");
+          return;
+        }
+        alert("验证码已发送到 " + phone);
+      }
+
+      function handleLogin() {
+        const phone = document.getElementById("login-phone").value.trim();
+        const code = document.getElementById("login-code").value.trim();
+        if (!phone || !code) {
+          alert("请填写手机号和验证码");
+          return;
+        }
+        currentPhone = phone;
+        const maskedPhone = phone.replace(/^(\d{3})\d{4}(\d{4})$/, "$1****$2");
+        const text = document.getElementById("whitelist-phone-text");
+        if (text) {
+          text.textContent = `合作医生认证将根据您当前登录的手机号进行校验：${maskedPhone}`;
+        }
+        showPageAfterLogin();
+      }
+
+      function showPageAfterLogin() {
+        document.getElementById("page-login").classList.remove("active");
+        document.getElementById("page-home").classList.add("active");
+        switchTab("home");
+      }
+
+      function toggleMiniProjectMenu() {
+        const menu = document.getElementById("mini-project-menu");
+        if (!menu.innerHTML) {
+          renderProjectMenu();
+        }
+        menu.classList.toggle("active");
+      }
+
+      function renderProjectMenu() {
+        const menu = document.getElementById("mini-project-menu");
+        const items = Object.entries(projectsConfig)
+          .map(([name, cfg]) => {
+            const meta = projectDisplayMeta[cfg.id] || { abbr: cfg.id, name, logoChar: "P" };
+            const isActive = currentProjectId === cfg.id;
+            return `
+              <div class="mini-project-menu-item ${isActive ? "active" : ""}" onclick="switchProject('${name}')">
+                <div>
+                  <div class="mini-project-menu-item-title">${meta.abbr}</div>
+                  <div class="mini-project-menu-item-sub">${meta.name}</div>
+                </div>
+                <div class="mini-project-check">${isActive ? "✓" : ""}</div>
+              </div>
+            `;
+          })
+          .join("");
+        menu.innerHTML = items;
+      }
+
+      function switchProject(name) {
+        const cfg = projectsConfig[name];
+        if (!cfg) return;
+        currentProjectName = name;
+        currentProjectId = cfg.id;
+        const meta = projectDisplayMeta[cfg.id];
+        document.getElementById("mini-project-abbr").textContent = meta.abbr;
+        document.getElementById("mini-project-name").textContent = meta.name;
+        document.getElementById("mini-project-logo").textContent = meta.logoChar;
+
+        const menu = document.getElementById("mini-project-menu");
+        menu.classList.remove("active");
+        renderProjectMenu();
+
+        // 根据项目类型控制"合作医生认证/病例奖励"卡片显隐
+        const whitelistCard = document.getElementById("whitelist-card");
+        const rewardCard = document.getElementById("reward-card-container");
+        if (whitelistCard) {
+          whitelistCard.style.display = cfg?.hasWhitelist ? "block" : "none";
+        }
+        if (rewardCard) {
+          rewardCard.style.display = cfg?.hasReward ? "block" : "none";
+        }
+
+        applyWhitelistStatusToUI(projectWhitelistStatus[cfg.id] || "none");
+        updateRewardSectionAccessUI();
+        renderBadgeProjectList();
+
+        // 切换到"合作医生认证类项目"时，若不在队列内，则弹出提示（与网页版一致的引导）
+        if (cfg.type === "whitelist") {
+          const status = projectWhitelistStatus[cfg.id] || "none";
+          if (status !== "approved") {
+            const maskedPhone = currentPhone
+              ? currentPhone.replace(/^(\d{3})\d{4}(\d{4})$/, "$1****$2")
+              : "*******";
+            const textEl = document.getElementById("whitelist-modal-text");
+            if (textEl) {
+              textEl.innerHTML = `根据当前登录手机号<strong>${maskedPhone}</strong>，您尚未加入该项目的数据建模队列，可申请加入或仅使用功能。`;
+            }
+            setProjectAccessMode(cgfgIdOrCurrent(), "limited");
+            document.getElementById("whitelist-modal").classList.add("active");
+          } else {
+            setProjectAccessMode(cfg.id, "full");
+          }
+        } else {
+          setProjectAccessMode(cfg.id, "full");
+        }
+      }
+
+      function cgfgIdOrCurrent() {
+        return currentProjectId;
+      }
+
+      function applyWhitelistStatusToUI(status) {
+        const badge = document.getElementById("whitelist-badge");
+        const action = document.getElementById("whitelist-apply-action");
+        if (!badge) return;
+        if (status === "approved") {
+          badge.textContent = "已通过合作医生认证";
+          badge.className = "status-badge approved";
+          action.style.display = "none";
+        } else if (status === "pending") {
+          badge.textContent = "认证申请中";
+          badge.className = "status-badge pending";
+          action.style.display = "none";
+        } else {
+          badge.textContent = "尚未发起合作医生认证";
+          badge.className = "status-badge";
+          action.style.display = "block";
+        }
+      }
+
+      function setProjectAccessMode(projectId, mode) {
+        if (!["full", "limited"].includes(mode)) return;
+        projectAccessMode[projectId] = mode;
+        updateRewardSectionAccessUI();
+      }
+
+      function captureRewardFormTemplateOnce() {
+        if (rewardFormTemplateCaptured) return;
+        const container = document.getElementById("reward-form-container");
+        if (!container) return;
+        rewardFormTemplateHTML = container.innerHTML;
+        rewardFormTemplateCaptured = true;
+      }
+
+      function updateRewardSectionAccessUI() {
+        captureRewardFormTemplateOnce();
+        const cfg = projectsConfig[currentProjectName] || (currentProjectId ? Object.values(projectsConfig).find(c => c.id === currentProjectId) : null);
+        const meta = projectDisplayMeta[currentProjectId];
+        const titleEl = document.getElementById("reward-section-title");
+        if (titleEl && meta) {
+          titleEl.textContent = `病例奖励申领（当前项目：${meta.name}）`;
+        }
+        const tip = document.getElementById("reward-restricted-tip");
+        const container = document.getElementById("reward-form-container");
+        if (!tip || !container) return;
+
+        // 仅在支持病例奖励的项目（如 AI智研金助手）下展示表单，其余项目展示占位说明
+        const hasReward = !!cfg?.hasReward;
+        if (!hasReward) {
+          tip.style.display = "none";
+          container.style.display = "block";
+          container.innerHTML = `
+            <div style="background: #fef3c7; border-radius: 10px; padding: 10px; font-size: 12px; color: #92400e; line-height: 1.6;">
+              <div style="font-weight: 600; margin-bottom: 4px;">当前项目未配置病例奖励申领</div>
+              <div>本原型仅在「AI智研金助手」项目下展示病例奖励申领流程示意。当前项目暂无病例奖励相关配置。</div>
+            </div>
+          `;
+          return;
+        }
+
+        // 支持奖励：恢复表单模板（若之前被占位覆盖）
+        if (rewardFormTemplateCaptured) {
+          const shouldRestore = !container.querySelector("#reward-progress-text");
+          if (shouldRestore) {
+            container.innerHTML = rewardFormTemplateHTML;
+          }
+        }
+
+        const mode = projectAccessMode[currentProjectId];
+        const isLimited = mode === "limited";
+        tip.style.display = isLimited ? "block" : "none";
+        container.style.display = isLimited ? "none" : "block";
+      }
+
+      function handleWhitelistCancel() {
+        closeModal("whitelist-modal");
+        setProjectAccessMode(currentProjectId, "limited");
+      }
+
+      function handleWhitelistApply() {
+        // 从提示弹窗进入“申请加入”表单
+        closeModal("whitelist-modal");
+        const modal = document.getElementById("whitelist-apply-modal");
+        if (modal) modal.classList.add("active");
+      }
+
+      function handleWhitelistApplyFromProfile() {
+        const cfg = projectsConfig[currentProjectName];
+        if (!cfg || cfg.type !== "whitelist") {
+          alert("当前项目不需要合作医生认证。");
+          return;
+        }
+        // 个人中心中的“去申请加入”入口，同样打开表单弹窗
+        const modal = document.getElementById("whitelist-apply-modal");
+        if (modal) modal.classList.add("active");
+      }
+
+      // 提交合作医生认证申请表单（小程序版）
+      function submitWhitelistApplyForm(e) {
+        if (e && e.preventDefault) e.preventDefault();
+        const name = document.getElementById("whitelist-name").value.trim();
+        const phone = document.getElementById("whitelist-phone").value.trim();
+        const hospital = document.getElementById("whitelist-hospital").value.trim();
+        const dept = document.getElementById("whitelist-dept").value.trim();
+        if (!name || !phone || !hospital || !dept) {
+          alert("请完整填写姓名、注册手机号、医院全称和科室。");
+          return;
+        }
+        // 原型中直接将当前项目的合作医生认证状态置为“申请中”，并限制银行卡激励功能
+        projectWhitelistStatus[currentProjectId] = "pending";
+        applyWhitelistStatusToUI("pending");
+        setProjectAccessMode(currentProjectId, "limited");
+        closeModal("whitelist-apply-modal");
+        alert("已提交加入该项目数据建模队列的申请，合作医生认证状态已更新为“申请中”。");
+      }
+
+      function showVerifyModal() {
+        document.getElementById("verify-modal").classList.add("active");
+      }
+
+      // 小程序：选择图片（拍照或相册）
+      function chooseImageForUpload(type, source) {
+        const fileInput = document.getElementById(type + "-file");
+        if (!fileInput) return;
+        
+        // 模拟小程序API：wx.chooseImage
+        if (source === "camera") {
+          alert("模拟小程序：调用相机拍照（原型示意）");
+        } else if (source === "album") {
+          alert("模拟小程序：从相册选择（原型示意）");
+        }
+        
+        // 触发文件选择（实际小程序中会通过API返回图片路径）
+        fileInput.click();
+        fileInput.onchange = function (e) {
+          if (e.target.files.length > 0) {
+            const fileName = e.target.files[0].name;
+            const uploadArea = document.getElementById(type + "-upload-area");
+            if (uploadArea) {
+              uploadArea.textContent = "已选择: " + fileName;
+              uploadArea.style.borderColor = "#10b981";
+              uploadArea.style.background = "#d1fae5";
+              uploadArea.style.color = "#059669";
+            }
+          }
+        };
+      }
+
+      // 小程序：选择文件
+      function chooseFileForUpload(type) {
+        const fileInput = document.getElementById(type + "-file");
+        if (!fileInput) return;
+        alert("模拟小程序：选择文件（原型示意）");
+        fileInput.click();
+        fileInput.onchange = function (e) {
+          if (e.target.files.length > 0) {
+            const fileName = e.target.files[0].name;
+            const uploadArea = document.getElementById(type + "-upload-area");
+            if (uploadArea) {
+              uploadArea.textContent = "已选择: " + fileName;
+              uploadArea.style.borderColor = "#10b981";
+              uploadArea.style.background = "#d1fae5";
+              uploadArea.style.color = "#059669";
+            }
+          }
+        };
+      }
+
+      // 小程序：立牌头像选择（拍照或相册）
+      function chooseImageForBadge(source) {
+        const fileInput = document.getElementById("badge-avatar-file");
+        if (!fileInput) return;
+        
+        if (source === "camera") {
+          alert("模拟小程序：调用相机拍照（原型示意）");
+        } else if (source === "album") {
+          alert("模拟小程序：从相册选择（原型示意）");
+        }
+        
+        fileInput.click();
+        fileInput.onchange = function (e) {
+          if (e.target.files.length > 0) {
+            const fileName = e.target.files[0].name;
+            const uploadArea = document.getElementById("badge-avatar-upload-area");
+            if (uploadArea) {
+              uploadArea.textContent = "已选择: " + fileName;
+              uploadArea.style.borderColor = "#10b981";
+              uploadArea.style.background = "#d1fae5";
+              uploadArea.style.color = "#059669";
+            }
+          }
+        };
+      }
+
+      // 小程序：立牌头像选择文件
+      function chooseFileForBadge() {
+        const fileInput = document.getElementById("badge-avatar-file");
+        if (!fileInput) return;
+        alert("模拟小程序：选择文件（原型示意）");
+        fileInput.click();
+        fileInput.onchange = function (e) {
+          if (e.target.files.length > 0) {
+            const fileName = e.target.files[0].name;
+            const uploadArea = document.getElementById("badge-avatar-upload-area");
+            if (uploadArea) {
+              uploadArea.textContent = "已选择: " + fileName;
+              uploadArea.style.borderColor = "#10b981";
+              uploadArea.style.background = "#d1fae5";
+              uploadArea.style.color = "#059669";
+            }
+          }
+        };
+      }
+
+      function submitVerification() {
+        const c = document.getElementById("certificate-file").files.length;
+        const l = document.getElementById("license-file").files.length;
+        if (!c || !l) {
+          alert("请上传两类证件照片后再提交。");
+          return;
+        }
+        alert("正在审核您上传的执业证件");
+        setTimeout(() => {
+          const aiPass = mockLicenseAuditResult === "success";
+          if (!aiPass) {
+            closeModal("verify-modal");
+            showLicenseAuditFail(
+              "系统未能识别到完整的证件信息（如证件编号、姓名或盖章区域），请检查是否拍摄清晰、无反光遮挡并重新上传。"
+            );
+            return;
+          }
+          isVerified = true;
+          const badge = document.getElementById("verify-badge");
+          if (badge) {
+            badge.textContent = "已认证";
+            badge.className = "status-badge approved";
+          }
+          const userTypeBadge = document.getElementById("user-type-badge");
+          if (userTypeBadge) {
+            userTypeBadge.textContent = "认证医生";
+            userTypeBadge.className = "status-badge approved";
+          }
+          // 更新依赖身份认证状态的 UI（如我的专属二维码）
+          updateVerificationDependentUI();
+          closeModal("verify-modal");
+          alert("您的执业证件已通过 AI 审核，现在可以使用全部医生功能。");
+        }, 1000);
+      }
+
+      function showLicenseAuditFail(reason) {
+        const reasonEl = document.getElementById("license-audit-fail-reason");
+        if (reasonEl && reason) reasonEl.textContent = reason;
+        document.getElementById("license-audit-fail-modal").classList.add("active");
+      }
+
+      function handleLicenseReupload() {
+        closeModal("license-audit-fail-modal");
+        const ids = ["certificate-file", "license-file"];
+        ids.forEach((id) => {
+          const input = document.getElementById(id);
+          if (input) input.value = "";
+        });
+        showVerifyModal();
+      }
+
+      function closeModal(id) {
+        const m = document.getElementById(id);
+        if (m) m.classList.remove("active");
+      }
+
+      // 点击"我的专属二维码"：未认证先做医生身份认证
+      function handleOpenMyQr() {
+        if (!isVerified) {
+          showVerifyModal();
+          return;
+        }
+        openQrModal();
+      }
+
+      function openQrModal() {
+        document.getElementById("qr-modal").classList.add("active");
+      }
+
+      // 根据身份认证状态更新依赖 UI（专属二维码等，与网页版保持一致）
+      function updateVerificationDependentUI() {
+        const placeholder = document.getElementById("my-qr-placeholder");
+        const img = document.getElementById("my-qr-image");
+        if (placeholder && img) {
+          if (isVerified) {
+            placeholder.style.display = "none";
+            img.style.display = "block";
+          } else {
+            placeholder.style.display = "flex";
+            img.style.display = "none";
+          }
+        }
+      }
+
+      function toggleRewardSection() {
+        const w = document.getElementById("reward-section-wrapper");
+        const t = document.getElementById("reward-toggle-text");
+        if (!w) return;
+        const isHidden = w.style.display === "none" || !w.style.display;
+        w.style.display = isHidden ? "block" : "none";
+        if (t) t.textContent = isHidden ? "点击收起" : "点击展开";
+        if (isHidden) updateRewardSectionAccessUI();
+      }
+
+      function updateRewardProgress() {
+        const text = document.getElementById("reward-progress-text");
+        if (!text) return;
+        const completed = 2;
+        const required = 5;
+        const remaining = Math.max(required - completed, 0);
+        text.textContent =
+          remaining === 0
+            ? `已完成 ${completed} 例合格病案上传，已满足奖励条件，可以提交银行卡信息领取奖励。`
+            : `已完成 ${completed} 例合格病案上传，还需完成 ${remaining} 例合格病案上传即可获得奖励。`;
+      }
+
+      function sendBankCode() {
+        const phone = document.getElementById("bank-phone").value.trim();
+        if (!phone) {
+          alert("请先填写预留手机号");
+          return;
+        }
+        alert("验证码已发送至预留手机号");
+      }
+
+      function handleBankSubmit(e) {
+        if (e && e.preventDefault) e.preventDefault();
+        if (projectAccessMode[currentProjectId] === "limited") {
+          alert("当前项目尚未加入数据建模队列，银行卡激励暂不可用。");
+          return;
+        }
+        const phone = document.getElementById("bank-phone").value.trim();
+        const code = document.getElementById("bank-code").value.trim();
+        if (!phone || !code) {
+          alert("请填写预留手机号和验证码");
+          return;
+        }
+        // 三方校验：银行卡账户名 / 资格证姓名 / 白名单姓名（原型通过 mockBankCheckResult 模拟）
+        const pass = mockBankCheckResult === "success";
+        if (!pass) {
+          alert(
+            "系统检测到银行卡账户名、资格证姓名或白名单姓名存在不一致，请核对姓名及银行卡信息后重新填写并提交。"
+          );
+          return;
+        }
+        alert(
+          "银行卡信息已提交，系统已完成银行卡账户名、资格证姓名与白名单姓名的三方一致性校验，等待审核打款。"
+        );
+      }
+
+      function openProjectQrModal() {
+        const meta = projectDisplayMeta[currentProjectId] || { name: currentProjectName, abbr: currentProjectId };
+        const titleEl = document.getElementById("project-qr-title");
+        const abbrEl = document.getElementById("project-qr-abbr");
+        if (titleEl) titleEl.textContent = meta.name;
+        if (abbrEl) abbrEl.textContent = meta.abbr;
+        document.getElementById("project-qr-modal").classList.add("active");
+      }
+
+      function updateMiniAdminUI() {
+        const btn = document.getElementById("mini-project-qr-btn");
+        if (!btn) return;
+        btn.style.display = userRole === "doctor" ? "none" : "flex";
+      }
+
+      function openDevPanel() {
+        syncDevChips();
+        document.getElementById("dev-panel-modal").classList.add("active");
+      }
+
+      // 当前项目是否满足执业范围要求（小程序版）
+      function checkScopeForCurrentProjectMini() {
+        const cfg =
+          projectsConfig[currentProjectName] ||
+          (currentProjectId && Object.values(projectsConfig).find((c) => c.id === currentProjectId)) ||
+          null;
+        if (!cfg || !cfg.requiredScope) return true;
+        return doctorScope.specialties.includes(cfg.requiredScope);
+      }
+
+      function setUserRole(role) {
+        if (!["doctor", "projectAdmin", "systemAdmin"].includes(role)) return;
+        userRole = role;
+        updateMiniAdminUI();
+        updateRoleSettingsCard();
+        syncDevChips();
+      }
+
+      // 根据角色更新"项目管理与机器人配置"卡片内容（小程序版）
+      function updateRoleSettingsCard() {
+        const desc = document.getElementById("role-settings-desc");
+        const list = document.getElementById("role-settings-list");
+        if (!desc || !list) return;
+
+        if (userRole === "doctor") {
+          desc.textContent = "当前角色：医生，可对本项目的机器人进行简单配置（如自动回复话术等，原型示意）。";
+          list.innerHTML = `
+            <div class="profile-item">
+              <div>
+                <div class="profile-item-label">机器人管理</div>
+                <div class="profile-item-value" style="font-size:12px;color:#6b7280;margin-top:4px;">
+                  查看/调整本项目机器人问答策略，例如常见问题回复、用药提醒等。
+                </div>
+              </div>
+              <div class="profile-item-action" onclick="handleRoleSettingsEntry('robot')">进入配置</div>
+            </div>
+          `;
+        } else if (userRole === "projectAdmin") {
+          desc.textContent = "当前角色：项目管理员，可进行项目首页管理、任务列表管理、知情同意书管理及机器人管理。";
+          list.innerHTML = `
+            <div class="profile-item">
+              <div>
+                <div class="profile-item-label">首页管理</div>
+                <div class="profile-item-value" style="font-size:12px;color:#6b7280;margin-top:4px;">
+                  配置项目首页展示内容，如轮播图、入口卡片、最新消息等。
+                </div>
+              </div>
+              <div class="profile-item-action" onclick="handleRoleSettingsEntry('home')">进入配置</div>
+            </div>
+            <div class="profile-item">
+              <div>
+                <div class="profile-item-label">任务列表管理</div>
+                <div class="profile-item-value" style="font-size:12px;color:#6b7280;margin-top:4px;">
+                  配置医生任务与激励规则，例如病例上传任务、随访任务等。
+                </div>
+              </div>
+              <div class="profile-item-action" onclick="handleRoleSettingsEntry('tasks')">进入配置</div>
+            </div>
+            <div class="profile-item">
+              <div>
+                <div class="profile-item-label">知情同意书管理</div>
+                <div class="profile-item-value" style="font-size:12px;color:#6b7280;margin-top:4px;">
+                  上传/维护本项目使用的知情同意书模板。
+                </div>
+              </div>
+              <div class="profile-item-action" onclick="handleRoleSettingsEntry('consent')">进入配置</div>
+            </div>
+            <div class="profile-item">
+              <div>
+                <div class="profile-item-label">机器人管理</div>
+                <div class="profile-item-value" style="font-size:12px;color:#6b7280;margin-top:4px;">
+                  统一配置本项目机器人话术与触发规则。
+                </div>
+              </div>
+              <div class="profile-item-action" onclick="handleRoleSettingsEntry('robot')">进入配置</div>
+            </div>
+          `;
+        } else {
+          desc.textContent = "当前角色：系统管理员，可进行首页管理、任务列表管理、知情同意书管理、机器人管理、项目创建与立牌管理。";
+          list.innerHTML = `
+            <div class="profile-item">
+              <div>
+                <div class="profile-item-label">首页管理</div>
+                <div class="profile-item-value" style="font-size:12px;color:#6b7280;margin-top:4px;">
+                  统一配置所有项目首页模块与入口。
+                </div>
+              </div>
+              <div class="profile-item-action" onclick="handleRoleSettingsEntry('home')">进入配置</div>
+            </div>
+            <div class="profile-item">
+              <div>
+                <div class="profile-item-label">任务列表管理</div>
+                <div class="profile-item-value" style="font-size:12px;color:#6b7280;margin-top:4px;">
+                  配置并监控所有项目的任务与激励。
+                </div>
+              </div>
+              <div class="profile-item-action" onclick="handleRoleSettingsEntry('tasks')">进入配置</div>
+            </div>
+            <div class="profile-item">
+              <div>
+                <div class="profile-item-label">知情同意书管理</div>
+                <div class="profile-item-value" style="font-size:12px;color:#6b7280;margin-top:4px;">
+                  统一维护多项目的知情同意书模板。
+                </div>
+              </div>
+              <div class="profile-item-action" onclick="handleRoleSettingsEntry('consent')">进入配置</div>
+            </div>
+            <div class="profile-item">
+              <div>
+                <div class="profile-item-label">机器人管理</div>
+                <div class="profile-item-value" style="font-size:12px;color:#6b7280;margin-top:4px;">
+                  管理不同项目的机器人策略与全局话术库。
+                </div>
+              </div>
+              <div class="profile-item-action" onclick="handleRoleSettingsEntry('robot')">进入配置</div>
+            </div>
+          `;
+        }
+      }
+
+      // 项目管理与机器人配置入口：未认证先做身份认证（小程序版）
+      function handleRoleSettingsEntry(target) {
+        if (!isVerified) {
+          showVerifyModal();
+          return;
+        }
+        let label = "配置";
+        if (target === "home") label = "首页管理";
+        else if (target === "tasks") label = "任务列表管理";
+        else if (target === "consent") label = "知情同意书管理";
+        else if (target === "robot") label = "机器人管理";
+        alert(`进入${label}（原型占位）`);
+      }
+
+      function setMockLicenseAudit(mode) {
+        if (!["success", "fail"].includes(mode)) return;
+        mockLicenseAuditResult = mode;
+        syncDevChips();
+      }
+
+      function setMockBankCheck(mode) {
+        if (!["success", "fail"].includes(mode)) return;
+        mockBankCheckResult = mode;
+        syncDevChips();
+      }
+
+      function syncDevChips() {
+        const roleIds = ["doctor", "projectAdmin", "systemAdmin"];
+        roleIds.forEach((r) => {
+          const el = document.getElementById("role-" + r);
+          if (el) el.classList.toggle("active", userRole === r);
+        });
+        const auditS = document.getElementById("audit-success");
+        const auditF = document.getElementById("audit-fail");
+        if (auditS) auditS.classList.toggle("active", mockLicenseAuditResult === "success");
+        if (auditF) auditF.classList.toggle("active", mockLicenseAuditResult === "fail");
+        const bankS = document.getElementById("bank-success");
+        const bankF = document.getElementById("bank-fail");
+        if (bankS) bankS.classList.toggle("active", mockBankCheckResult === "success");
+        if (bankF) bankF.classList.toggle("active", mockBankCheckResult === "fail");
+      }
+
+      // 立牌逻辑（按项目）
+      function renderBadgeProjectList() {
+        const container = document.getElementById("badge-project-list");
+        if (!container) return;
+
+        // 立牌展示与网页版保持一致：仅展示当前项目的立牌信息
+        const cfg = projectsConfig[currentProjectName] || (currentProjectId ? Object.values(projectsConfig).find(c => c.id === currentProjectId) : null);
+        if (!cfg) {
+          container.innerHTML =
+            '<div class="profile-item-value" style="font-size: 13px; color: #6b7280;">请先在顶部选择一个项目，再制作该项目的立牌。</div>';
+          return;
+        }
+
+        const name = projectDisplayMeta[cfg.id]?.name || currentProjectName;
+        const state = projectBadgeState[cfg.id];
+        const statusText = state.status === "generated" ? "已生成" : "尚未创建";
+        const actions = [];
+        if (state.status === "generated") {
+          actions.push(
+            `<div class="profile-item-action" onclick="openBadgePreviewForProject('${cfg.id}')">预览立牌</div>`
+          );
+          actions.push(
+            `<div class="profile-item-action" onclick="openBadgeMailForProject('${cfg.id}')">邮寄立牌</div>`
+          );
+          actions.push(
+            `<div class="profile-item-action" onclick="openBadgeQuestionnaireForProject('${cfg.id}')">修改/再生成</div>`
+          );
+        } else {
+          actions.push(
+            `<div class="profile-item-action" onclick="openBadgeQuestionnaireForProject('${cfg.id}')">去制作立牌</div>`
+          );
+        }
+
+        container.innerHTML = `
+          <div class="profile-item" style="align-items:flex-start;">
+            <div>
+              <div class="profile-item-label">${name}</div>
+              <div class="profile-item-value" style="margin-top:4px;">立牌状态：${statusText}</div>
+              <div class="profile-item-value" style="font-size:12px;margin-top:4px;">
+                剩余额度：生成 ${state.remainingGenerate} 次 / 邮寄 ${state.remainingMail} 次
+              </div>
+              <!-- 小程序端不再在列表中展示具体运单号，仅通过状态体现是否已邮寄 -->
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+              ${actions.join("")}
+            </div>
+          </div>
+        `;
+      }
+
+      function openBadgePreviewModal(projectId) {
+        const meta = projectDisplayMeta[projectId] || { name: "项目" };
+        const titleEl = document.getElementById("badge-preview-title");
+        if (titleEl) titleEl.textContent = `立牌预览（${meta.name}）`;
+        document.getElementById("badge-preview-modal").classList.add("active");
+      }
+
+      function openBadgePreviewForProject(projectId) {
+        currentBadgeProjectId = projectId;
+        openBadgePreviewModal(projectId);
+      }
+
+      function openBadgeQuestionnaireForProject(projectId) {
+        currentBadgeProjectId = projectId;
+        const state = projectBadgeState[projectId];
+        if (state.remainingGenerate <= 0) {
+          openBadgePayModal("generate", projectId);
+          return;
+        }
+        const meta = projectDisplayMeta[projectId] || { name: "项目" };
+        const titleEl = document.querySelector("#badge-questionnaire-modal .modal-title");
+        if (titleEl) titleEl.textContent = `制作我的医生立牌（${meta.name}）`;
+        const freeDesc = document.getElementById("badge-free-desc");
+        if (freeDesc) {
+          freeDesc.textContent = `当前项目剩余生成额度：${state.remainingGenerate} 次；提交后将占用 1 次生成额度。`;
+        }
+        document.getElementById("badge-questionnaire-modal").classList.add("active");
+      }
+
+      function openBadgeMailForProject(projectId) {
+        currentBadgeProjectId = projectId;
+        const state = projectBadgeState[projectId];
+        if (state.status !== "generated") {
+          alert("请先生成该项目立牌后再申请邮寄。");
+          return;
+        }
+        if (state.remainingMail <= 0) {
+          openBadgePayModal("mail", projectId);
+          return;
+        }
+        const meta = projectDisplayMeta[projectId] || { name: "项目" };
+        const titleEl = document.getElementById("badge-mail-title");
+        if (titleEl) titleEl.textContent = `邮寄立牌（${meta.name}）`;
+        const quotaTip = document.getElementById("badge-mail-quota-tip");
+        if (quotaTip) {
+          quotaTip.textContent = `剩余邮寄额度：${state.remainingMail} 次；提交后将占用 1 次邮寄额度。`;
+        }
+        const view = document.getElementById("badge-mail-view");
+        const tracking = document.getElementById("badge-mail-tracking");
+        if (state.trackingNo && state.shipping) {
+          if (view) view.style.display = "none";
+          if (tracking) tracking.style.display = "block";
+          document.getElementById("badge-mail-tracking-no").textContent = state.trackingNo;
+          document.getElementById(
+            "badge-mail-tracking-info"
+          ).textContent = `收件人：${state.shipping.name}，电话：${state.shipping.phone}，地址：${state.shipping.address}`;
+        } else {
+          if (view) view.style.display = "block";
+          if (tracking) tracking.style.display = "none";
+        }
+        document.getElementById("badge-mail-modal").classList.add("active");
+      }
+
+      function openBadgeMailEdit() {
+        const state = projectBadgeState[currentBadgeProjectId];
+        const view = document.getElementById("badge-mail-view");
+        const tracking = document.getElementById("badge-mail-tracking");
+        if (view) view.style.display = "block";
+        if (tracking) tracking.style.display = "none";
+        const nameEl = document.getElementById("badge-mail-name");
+        const phoneEl = document.getElementById("badge-mail-phone");
+        const addrEl = document.getElementById("badge-mail-address");
+        if (state?.shipping) {
+          nameEl.value = state.shipping.name;
+          phoneEl.value = state.shipping.phone;
+          addrEl.value = state.shipping.address;
+        } else {
+          nameEl.value = "";
+          phoneEl.value = "";
+          addrEl.value = "";
+        }
+      }
+
+      function submitBadgeMail() {
+        const state = projectBadgeState[currentBadgeProjectId];
+        if (state.remainingMail <= 0) {
+          openBadgePayModal("mail", currentBadgeProjectId);
+          return;
+        }
+        const name = document.getElementById("badge-mail-name").value.trim();
+        const phone = document.getElementById("badge-mail-phone").value.trim();
+        const addr = document.getElementById("badge-mail-address").value.trim();
+        if (!name || !phone || !addr) {
+          alert("请完整填写收件信息。");
+          return;
+        }
+        state.shipping = { name, phone, address: addr };
+        state.remainingMail -= 1;
+        state.trackingNo = "YT" + Date.now().toString().slice(-8);
+        renderBadgeProjectList();
+        closeModal("badge-mail-modal");
+        alert("已提交邮寄申请（原型示意），当前项目立牌状态已更新为“已邮寄”。");
+      }
+
+      function openBadgePayModal(action, projectId) {
+        pendingBadgePayAction = action;
+        currentBadgeProjectId = projectId;
+        const meta = projectDisplayMeta[projectId] || { name: "项目" };
+        const title = document.getElementById("badge-pay-title");
+        const desc = document.getElementById("badge-pay-desc");
+        if (title) {
+          title.textContent =
+            action === "mail"
+              ? `邮寄立牌支付（${meta.name}）`
+              : `制作/生成立牌支付（${meta.name}）`;
+        }
+        if (desc) {
+          desc.textContent =
+            action === "mail"
+              ? `当前项目（${meta.name}）邮寄额度不足，本次邮寄需要支付（原型占位）。支持好友代付。`
+              : `当前项目（${meta.name}）生成额度不足，本次生成需要支付（原型占位）。支持好友代付。`;
+        }
+        document.getElementById("badge-pay-modal").classList.add("active");
+      }
+
+      function confirmBadgePayment() {
+        const state = projectBadgeState[currentBadgeProjectId];
+        if (!state) return;
+        if (pendingBadgePayAction === "mail") {
+          state.remainingMail += 1;
+        } else {
+          state.remainingGenerate += 1;
+        }
+        closeModal("badge-pay-modal");
+        renderBadgeProjectList();
+        alert("模拟支付成功：已为当前项目增加 1 次额度。");
+      }
+
+      function openWechatBind() {
+        alert("原型：在正式版中这里会弹出输入微信号的对话框。");
+      }
+
+      window.addEventListener("load", () => {
+        renderProjectMenu();
+        renderBadgeProjectList();
+        applyWhitelistStatusToUI(projectWhitelistStatus[currentProjectId]);
+        updateRewardProgress();
+        updateRewardSectionAccessUI();
+        updateMiniAdminUI();
+        updateRoleSettingsCard();
+        // 初始化根据认证状态控制“我的专属二维码”等依赖区域
+        updateVerificationDependentUI();
+        // 初始化时根据当前项目控制卡片显隐
+        const cfg = projectsConfig[currentProjectName];
+        if (cfg) {
+          const whitelistCard = document.getElementById("whitelist-card");
+          const rewardCard = document.getElementById("reward-card-container");
+          if (whitelistCard) {
+            whitelistCard.style.display = cfg?.hasWhitelist ? "block" : "none";
+          }
+          if (rewardCard) {
+            rewardCard.style.display = cfg?.hasReward ? "block" : "none";
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
+
+
